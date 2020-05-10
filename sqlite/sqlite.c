@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <sqlite3.h>
+#include <stdlib.h>
+
 
 typedef struct {
     const char *createQuery;
@@ -9,7 +11,6 @@ typedef struct {
 
 typedef struct {
     unsigned char *blob;
-    unsigned long blob_size;
     const char *text;
 } Data; 
 
@@ -31,20 +32,13 @@ int main() {
     }
 
     sqlite3_exec(ppDb, Q.createQuery, NULL, NULL, NULL);
-
     sqlite3_prepare_v2(ppDb, Q.insertQuery, -1, &stmt, NULL);
+    
+    D.blob = (unsigned char *)malloc(5);
 
-    const unsigned char blob[] = {0x01, 0x02, 0x03, 0x04};
-    D.blob = (unsigned char *)malloc(sizeof(blob));
-    const unsigned char blob[] = {0x01, 0x02, 0x03, 0x04};
     sqlite3_bind_text(stmt, 1, "_", -1, NULL);
-    sqlite3_bind_blob(stmt, 2, blob, sizeof(blob), NULL);
-
-    rc = sqlite3_step(stmt);
-    if (rc != SQLITE_DONE) {
-        fprintf(stderr, "Execution failed: %s\n", sqlite3_errmsg(ppDb));
-        return 1;
-    }
+    sqlite3_bind_blob(stmt, 2, D.blob, 5, NULL);
+    sqlite3_step(stmt);
 
     sqlite3_finalize(stmt);
     sqlite3_close(ppDb);
