@@ -17,11 +17,12 @@ typedef struct {
 int main() {
     Queries Q;
     Data D;
+    sqlite3 *ppDb;
+    sqlite3_stmt *stmt;
 
     Q.createQuery = "CREATE TABLE IF NOT EXISTS tb (k INTEGER PRIMARY KEY, y VARCHAR(69),z BLOB);";
     Q.insertQuery = "INSERT INTO tb (y, z) VALUES (?, ?);";
 
-    sqlite3 *ppDb;
 
     int rc = sqlite3_open("test.db", &ppDb);
     if (rc) {
@@ -31,11 +32,10 @@ int main() {
 
     sqlite3_exec(ppDb, Q.createQuery, NULL, NULL, NULL);
 
-    sqlite3_stmt *stmt;
     sqlite3_prepare_v2(ppDb, Q.insertQuery, -1, &stmt, NULL);
 
-    D.blob[] = {0x01,0x02,0x03,0x04};
-
+    const unsigned char blob[] = {0x01, 0x02, 0x03, 0x04};
+    D.blob = (unsigned char *)malloc(sizeof(blob));
     const unsigned char blob[] = {0x01, 0x02, 0x03, 0x04};
     sqlite3_bind_text(stmt, 1, "_", -1, NULL);
     sqlite3_bind_blob(stmt, 2, blob, sizeof(blob), NULL);
