@@ -38,7 +38,7 @@ int main() {
 
      while (1) {
         int new_socket_desc = accept(socket_desc, (struct sockaddr *)&client_addr, &addr_len);
-        if (new_socket_desc) {
+        if (new_socket_desc == -1) {
             perror("accept failed");
             continue;
         }
